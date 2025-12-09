@@ -66,8 +66,8 @@ class DMHandlers:
             CommandHandler("start", self.start, filters=private_filter),
             CommandHandler("cancel", self.cancel, filters=private_filter),
             MessageHandler(
-                private_filter & filters.TEXT & ~filters.COMMAND,
                 self.receive_application,
+                filters=private_filter & filters.TEXT & ~filters.COMMAND,
             ),
             CallbackQueryHandler(
                 self.handle_apply_callback, pattern="^apply_for_guild$"
