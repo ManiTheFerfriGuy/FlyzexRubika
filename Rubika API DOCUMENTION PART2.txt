@@ -1,0 +1,2094 @@
+پرش به محتویات <#_1>
+logo <https://rubika.ir/botapi>
+
+بات روبیکا
+متد ها
+
+logo <https://rubika.ir/botapi> بات روبیکا
+
+  * معرفی <https://rubika.ir/botapi>
+  * متد ها متد ها <https://rubika.ir/botapi/methods>
+    فهرست موضوعات
+
+      o گرفتن اطلاعات بات <#_1>
+      o ارسال پیام (Text, Keypad, InlineKeypad) <#text-keypad-inlinekeypad>
+      o ارسال keypad <#keypad>
+      o ارسال پیام متنی <#_2>
+      o ارسال نظرسنجی <#_3>
+      o ارسال موقعیت مکانی <#_4>
+      o ارسال مخاطب <#_5>
+      o گرفتن اطلاعات چت <#_6>
+      o گرفتن آخرین آپدیت‌ها <#_7>
+      o فوروارد کردن پیام <#_8>
+      o ویرایش متن پیام <#_9>
+      o ویرایش Inline Keypad <#inline-keypad>
+      o حذف پیام <#_10>
+      o تنظیم دستور‌ها (commands) <#commands>
+      o آپدیت آدرس بات (URL Endpoint) <#url-endpoint>
+      o حذف keypad <#keypad_1>
+      o ویرایش keypad <#keypad_2>
+      o دریافت فایل <#_12>
+      o ارسال فایل <#_13>
+      o آپلود فایل <#_14>
+  * مدل ها <https://rubika.ir/botapi/models>
+  * گروه ها و کانال ها <https://rubika.ir/botapi/group-channel>
+
+فهرست موضوعات
+
+  * گرفتن اطلاعات بات <#_1>
+  * ارسال پیام (Text, Keypad, InlineKeypad) <#text-keypad-inlinekeypad>
+  * ارسال keypad <#keypad>
+  * ارسال پیام متنی <#_2>
+  * ارسال نظرسنجی <#_3>
+  * ارسال موقعیت مکانی <#_4>
+  * ارسال مخاطب <#_5>
+  * گرفتن اطلاعات چت <#_6>
+  * گرفتن آخرین آپدیت‌ها <#_7>
+  * فوروارد کردن پیام <#_8>
+  * ویرایش متن پیام <#_9>
+  * ویرایش Inline Keypad <#inline-keypad>
+  * حذف پیام <#_10>
+  * تنظیم دستور‌ها (commands) <#commands>
+  * آپدیت آدرس بات (URL Endpoint) <#url-endpoint>
+  * حذف keypad <#keypad_1>
+  * ویرایش keypad <#keypad_2>
+  * دریافت فایل <#_12>
+  * ارسال فایل <#_13>
+  * آپلود فایل <#_14>
+
+
+  متد ها
+
+
+    گرفتن اطلاعات بات¶ <#_1>
+
+  * متد: |getMe|
+  * اطلاعات پایه‌ای بات را بازمی‌گرداند، شامل نام، نام کاربری، شناسه
+    و... تا بتوان هویت و تنظیمات اولیه بات را بررسی کرد.
+  * ورودی
+  * این متد اطلاعات پایه‌ای بات را برمی‌گرداند. معمولاً برای تست اتصال
+    بات و شناسایی آن استفاده می‌شود و هیچ پارامتری به عنوان ورودی دریافت
+    نمیکند.
+  * خروجی
+
+فیلد 	نوع 	توضیحات
+|bot| 	|Bot| <https://rubika.ir/botapi/models#bot> 	بات
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl -X POST https://botapi.rubika.ir/v3/{token}/getMe
+
+    |
+
+    |import requests
+
+    url = f'https://botapi.rubika.ir/v3/{token}/getMe'
+
+    response = requests.post(url)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import get_me
+    from rubika_bot.models import Bot
+
+    bot: Bot = get_me(token='SUPER_SECRET_TOKEN')
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/getMe',
+      'headers': {
+      }
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    ارسال پیام (Text, Keypad, InlineKeypad)¶ <#text-keypad-inlinekeypad>
+
+  * متد: |sendMessage|
+  * این متد پیام را از بات به یک چت ارسال می‌کند و نوع محتوا را می‌توان
+    مشخص کرد. مانند ارسال Text، Keypad یا InlineKeypad برای دریافت پاسخ
+    مستقیم کاربر.
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|chat_id| 	|str| 	شناسه چت
+|text| 	|str| 	متن پیام
+|chat_keypad| 	|Keypad| <https://rubika.ir/botapi/models#keypad> 	keypad
+|disable_notification| 	|bool| 	غیرفعال کردن اعلان؟ (پیشفرض false)
+|inline_keypad| 	|Keypad| <https://rubika.ir/botapi/models#keypad> 	Keypad
+|reply_to_message_id| 	|str| 	در جوابِ پیامِ؟
+|chat_keypad_type| 	|ChatKeypadTypeEnum| <https://rubika.ir/botapi/
+models#chatkeypadtypeenum> 	نوع keypad
+
+  * خروجی
+
+فیلد 	نوع 	توضیحات
+|message_id| 	|str| 	شناسه پیام
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/sendMessage' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "chat_id": "{chat_id}",
+                "text": "Welcome",
+                "inline_keypad": {
+                    "rows": [
+                        {
+                            "buttons": [
+                                {
+                                    "id": "100",
+                                    "type": "Simple",
+                                    "button_text": "Add Account"
+                                }
+                            ]
+                        },
+                        {
+                            "buttons": [
+                                {
+                                    "id": "101",
+                                    "type": "Simple",
+                                    "button_text": "Edit Account"
+                                },
+                                {
+                                    "id": "102",
+                                    "type": "Simple",
+                                    "button_text": "Remove Account"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }'
+
+    |
+
+    |import requests
+    import json
+
+    url = f"https://botapi.rubika.ir/v3/{token}/sendMessage"
+
+    data = {
+        "chat_id": chat_id,
+        "text": "Welcome",
+        "inline_keypad": {
+            "rows": [
+                {
+                    "buttons": [
+                        {
+                            "id": "100",
+                            "type": "Simple",
+                            "button_text": "Add Account"
+                        }
+                    ]
+                },
+                {
+                    "buttons": [
+                        {
+                            "id": "101",
+                            "type": "Simple",
+                            "button_text": "Edit Account"
+                        },
+                        {
+                            "id": "102",
+                            "type": "Simple",
+                            "button_text": "Remove Account"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import send_message
+    from rubika_bot.models import Keypad, KeypadRow, Button
+
+    b1 = Button(id='100', type='Simple', button_text='Add Account')
+    b2 = Button(id='101', type='Simple', button_text='Edit Account')
+    b3 = Button(id='102', type='Simple', button_text='Remove Account')
+    keypad = Keypad(
+        rows=[
+            KeypadRow(buttons=[b1]),
+            KeypadRow(buttons=[b2, b3])
+        ],
+    )
+    send_message(
+        token='SUPER_SECRET_TOKEN',
+        chat_id='CHAT_ID',
+        text='Welcome',
+        inline_keypad=keypad
+    )
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/sendMessage',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+          "chat_id": chat_id,
+          "text": "hello world"
+          "inline_keypad": {
+            "rows": [
+              {
+                "buttons": [
+                  {
+                    "id": "100",
+                    "type": "Simple",
+                    "button_text": "Add Account"
+                  }
+                ]
+              },
+              {
+                "buttons": [
+                  {
+                    "id": "101",
+                    "type": "Simple",
+                    "button_text": "Edit Account"
+                  },
+                  {
+                    "id": "102",
+                    "type": "Simple",
+                    "button_text": "Remove Account"
+                  }
+                ]
+              }
+            ]
+          }
+        })
+
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    ارسال keypad¶ <#keypad>
+
+  * متد: |sendMessage|
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|chat_id| 	|str| 	شناسه چت
+|text| 	|str| 	متن پیام
+|chat_keypad_type| 	|ChatKeypadTypeEnum| <https://rubika.ir/botapi/
+models#chatkeypadtypeenum> 	نوع keypad
+|chat_keypad| 	|Keypad| <https://rubika.ir/botapi/models#keypad> 	keypad
+|disable_notification| 	|bool| 	غیرفعال کردن اعلان؟ (پیشفرض false)
+|reply_to_message_id| 	|str| 	در جوابِ پیامِ؟
+
+  * خروجی
+
+فیلد 	نوع 	توضیحات
+|message_id| 	|str| 	شناسه پیام
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/sendMessage' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "chat_id": "{chat_id}",
+                "text": "Welcome",
+                "chat_keypad_type": "New",
+                "chat_keypad": {
+                    "rows": [
+                        {
+                            "buttons": [
+                                {
+                                    "id": "100",
+                                    "type": "Simple",
+                                    "button_text": "Add Account"
+                                }
+                            ]
+                        },
+                        {
+                            "buttons": [
+                                {
+                                    "id": "101",
+                                    "type": "Simple",
+                                    "button_text": "Edit Account"
+                                },
+                                {
+                                    "id": "102",
+                                    "type": "Simple",
+                                    "button_text": "Remove Account"
+                                }
+                            ]
+                        }
+                    ],
+                    "resize_keyboard": true,
+                    "on_time_keyboard": false
+                }
+            }'
+
+    |
+
+    |import requests
+    import json
+
+    url = f"https://botapi.rubika.ir/v3/{token}/sendMessage"
+
+    data = {
+        "chat_id": chat_id,
+        "text": "Welcome",
+        "chat_keypad_type": "New",
+        "chat_keypad": {
+            "rows": [
+                {
+                    "buttons": [
+                        {
+                            "id": "100",
+                            "type": "Simple",
+                            "button_text": "Add Account"
+                        }
+                    ]
+                },
+                {
+                    "buttons": [
+                        {
+                            "id": "101",
+                            "type": "Simple",
+                            "button_text": "Edit Account"
+                        },
+                        {
+                            "id": "102",
+                            "type": "Simple",
+                            "button_text": "Remove Account"
+                        }
+                    ]
+                }
+            ],
+            "resize_keyboard": True,
+            "on_time_keyboard": False
+        }
+    }
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import send_message
+    from rubika_bot.models import Keypad, KeypadRow, Button
+
+    b1 = Button(id='100', type='Simple', button_text='Add Account')
+    b2 = Button(id='101', type='Simple', button_text='Edit Account')
+    b3 = Button(id='102', type='Simple', button_text='Remove Account')
+    keypad = Keypad(
+        rows=[
+            KeypadRow(buttons=[b1]),
+            KeypadRow(buttons=[b2, b3])
+        ],
+        resize_keyboard=True,
+        on_time_keyboard=False
+    )
+    send_message(
+        token='SUPER_SECRET_TOKEN',
+        chat_id='CHAT_ID',
+        text='Welcome',
+        chat_keypad_type='New',
+        chat_keypad=keypad
+    )
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/sendMessage',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+          "chat_id": chat_id,
+          "chat_keypad_type": "New",
+          "text": "Welcome",
+          "chat_keypad": {
+            "rows": [
+              {
+                "buttons": [
+                  {
+                    "id": "100",
+                    "type": "Simple",
+                    "button_text": "Add Account"
+                  }
+                ]
+              },
+              {
+                "buttons": [
+                  {
+                    "id": "101",
+                    "type": "Simple",
+                    "button_text": "Edit Account"
+                  },
+                  {
+                    "id": "102",
+                    "type": "Simple",
+                    "button_text": "Remove Account"
+                  }
+                ]
+              }
+            ],
+            "resize_keyboard": true,
+            "on_time_keyboard": false
+          }
+        })
+
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    ارسال پیام متنی¶ <#_2>
+
+  * متد: |sendMessage|
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|chat_id| 	|str| 	شناسه چت
+|text| 	|str| 	متن پیام
+|disable_notification| 	|bool| 	غیرفعال کردن اعلان؟ (پیشفرض false)
+|reply_to_message_id| 	|str| 	در جوابِ پیامِ؟
+
+  * خروجی
+
+فیلد 	نوع 	توضیحات
+|message_id| 	|str| 	شناسه پیام
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/sendMessage' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "text": "Hello user, this is my text",
+                "chat_id": "{chat_id}"
+            }'
+
+    |
+
+    |import requests
+
+    data = {
+        "chat_id": chat_id,
+        "text": "Hello user, this is my text",
+    }
+    url = f'https://botapi.rubika.ir/v3/{token}/sendMessage'
+    response = requests.post(url, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import send_message
+
+    send_message(
+        token='SUPER_SECRET_TOKEN',
+        chat_id='CHAT_ID',
+        text='Hello World',
+    )
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/sendMessage',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "chat_id": chat_id,
+        "text": "Hello user, this is my text"
+      })
+
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    ارسال نظرسنجی¶ <#_3>
+
+  * متد: |sendPoll|
+  * این متد امکان ارسال نظرسنجی از بات به چت را فراهم می‌کند، شامل سوال،
+    گزینه‌ها و تنظیمات تعامل کاربران با نظرسنجی.
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|chat_id| 	|str| 	شناسه چت
+|question| 	|str| 	متن سوال
+|options| 	|list[str]| 	گزینه‌های سوال
+
+  * خروجی
+
+فیلد 	نوع 	توضیحات
+|message_id| 	|str| 	شناسه پیام
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/sendPoll' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "chat_id": "{chat_id}",
+                "question": "Do you have any question?",
+                "options": ["yes", "no"]
+            }'
+
+    |
+
+    |import requests
+
+    data = {
+        "chat_id": chat_id,
+        "question": "Do you have any question?",
+        "options": ["yes", "no"],
+    }
+    url = f'https://botapi.rubika.ir/v3/{token}/sendPoll'
+    response = requests.post(url, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import send_poll
+
+    send_poll(
+        token='SUPER_SECRET_TOKEN',
+        chat_id='CHAT_ID',
+        question='Do you have any question?',
+        options=['yes', 'no']
+    )
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/sendPoll',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "chat_id": chat_id,
+        "question": "Do you have any question?",
+        "options": ["yes", "no"],
+      })
+
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    ارسال موقعیت مکانی¶ <#_4>
+
+  * متد: |sendLocation|
+  * این متد موقعیت مکانی را از بات به چت ارسال می‌کند و شامل مختصات طول
+    و عرض جغرافیایی است.
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|chat_id| 	|str| 	شناسه چت
+|latitude| 	|str| 	عرض جغرافیایی
+|longitude| 	|str| 	طول جغرافیایی
+|chat_keypad| 	|Keypad| <https://rubika.ir/botapi/models#keypad> 	keypad
+|disable_notification| 	|str| 	غیرفعال کردن اعلان؟ (پیشفرض false)
+|inline_keypad| 	|Keypad| <https://rubika.ir/botapi/models#keypad> 	Keypad
+|reply_to_message_id| 	|str| 	در جوابِ پیامِ؟
+|chat_keypad_type| 	|ChatKeypadTypeEnum| <https://rubika.ir/botapi/
+models#chatkeypadtypeenum> 	نوع keypad
+
+  * خروجی
+
+فیلد 	نوع 	توضیحات
+|message_id| 	|str| 	شناسه پیام
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/sendLocation' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "chat_id": "{chat_id}",
+                "latitude": "{latitude}",
+                "longitude": "{longitude}"
+            }'
+
+    |
+
+    |import requests
+
+    data = {
+        "chat_id": chat_id,
+        "latitude": latitude,
+        "longitude": longitude,
+    }
+    url = f'https://botapi.rubika.ir/v3/{token}/sendLocation'
+    response = requests.post(url, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import send_location
+
+    send_location(
+        token='SUPER_SECRET_TOKEN',
+        chat_id='CHAT_ID',
+        latitude='35.759662741892626',
+        longitude='51.4036344416759'
+    )
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/sendLocation',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "chat_id": chat_id,
+        "latitude": latitude,
+        "longitude": longitude,
+      })
+
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    ارسال مخاطب¶ <#_5>
+
+  * متد: |sendContact|
+  * این متد امکان ارسال اطلاعات تماس (شماره تلفن و نام فرد) از بات به چت
+    را فراهم می‌کند تا کاربران بتوانند به‌طور مستقیم با آن تماس برقرار
+    کنند.
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|chat_id| 	|str| 	شناسه چت
+|first_name| 	|str| 	نام مخاطب
+|last_name| 	|str| 	نام‌خانوادگی مخاطب
+|phone_number| 	|str| 	شماره مخاطب
+|chat_keypad| 	|Keypad| <https://rubika.ir/botapi/models#keypad> 	keypad
+|disable_notification| 	|str| 	غیرفعال کردن اعلان؟ (پیشفرض false)
+|inline_keypad| 	|Keypad| <https://rubika.ir/botapi/models#keypad> 	keypad
+|reply_to_message_id| 	|str| 	در جوابِ پیامِ؟
+|chat_keypad_type| 	|ChatKeypadTypeEnum| <https://rubika.ir/botapi/
+models#chatkeypadtypeenum> 	نوع keypad
+
+  * خروجی
+
+فیلد 	نوع 	توضیحات
+|message_id| 	|str| 	شناسه پیام
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/sendContact' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "chat_id": "{chat_id}",
+                "first_name": "{first_name}",
+                "last_name": "{last_name}",
+                "phone_number": "{phone_number}"
+            }'
+
+    |
+
+    |import requests
+
+    data = {
+        "chat_id": chat_id,
+        "first_name": first_name,
+        "last_name": last_name,
+        "phone_number": phone_number,
+    }
+    url = f'https://botapi.rubika.ir/v3/{token}/sendContact'
+    response = requests.post(url, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import send_contact
+
+    send_contact(
+        token='SUPER_SECRET_TOKEN',
+        chat_id='CHAT_ID',
+        first_name='Ali',
+        last_name='Rn',
+        phone_number='09038754321'
+    )
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/sendContact',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "chat_id": chat_id,
+        "first_name": first_name,
+        "last_name": last_name,
+        "phone_number": phone_number
+      })
+
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    گرفتن اطلاعات چت¶ <#_6>
+
+  * متد: |getChat|
+  * این متد اطلاعات کامل یک چت مشخص را بازمیگرداند، شامل شناسه، نام،
+    نوع، تصویر و تنظیمات آن، تا بات بتواند ویژگی‌ها و وضعیت چت را مدیریت
+    یا بررسی کند.
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|chat_id| 	|str| 	شناسه چت
+
+  * خروجی
+
+فیلد 	نوع 	توضیحات
+|chat| 	|Chat| <https://rubika.ir/botapi/models#chat> 	چت
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/getChat' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "chat_id": "{chat_id}"
+            }'
+
+    |
+
+    |import requests
+
+    data = {
+        "chat_id": chat_id,
+    }
+    url = f'https://botapi.rubika.ir/v3/{token}/getChat'
+    response = requests.post(url, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import get_chat
+    from rubika_bot.models import Chat
+
+    chat: Chat = get_chat(
+        token='SUPER_SECRET_TOKEN',
+        chat_id='CHAT_ID',
+    )
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/getChat',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "chat_id": chat_id
+      })
+
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    گرفتن آخرین آپدیت‌ها¶ <#_7>
+
+  * متد: |getUpdates|
+  * این متد تمامی پیام‌ها، ویرایش‌ها و رویدادهای جدید مربوط به چت‌ها را
+    از سرور دریافت می‌کند. با استفاده از آن، بات می‌تواند فعالیت‌های
+    کاربران، پاسخ‌ها، و تغییرات پیام‌ها را دنبال کند.
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|offset_id| 	|str| 	شناسه‌ای برای دریافت ادامه‌ی لیست. در صورت تمایل به
+دریافت پیام‌های بعدی، مقدار next_offset_id درخواست قبلی را در این فیلد
+قرار دهید.
+|limit| 	|int| 	تعداد رکوردهای هر درخواست
+
+  * خروجی
+
+فیلد 	نوع 	توضیحات
+|updates| 	|list[Update]| <https://rubika.ir/botapi/models#update> 	
+آرایه‌ای از آپدیت ها
+|next_offset_id| 	|str| 	شناسه‌ای برای درخواست بعدی جهت دریافت ادامه‌ی
+داده‌ها.
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/getUpdates' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "limit": "{limit}"
+            }'
+
+    |
+
+    |import requests
+
+    data = {
+        "limit": limit,
+    }
+    url = f'https://botapi.rubika.ir/v3/{token}/getUpdates'
+    response = requests.post(url, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import get_updates
+    from rubika_bot.models import Update
+
+    updates, _ = get_updates(
+        token='SUPER_SECRET_TOKEN',
+        limit=10,
+    )
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/getUpdates',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "limit": limit,
+      })
+
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    فوروارد کردن پیام¶ <#_8>
+
+  * متد: |forwardMessage|
+  * این متد پیام موجود در یک چت را به چت دیگری منتقل می‌کند، بدون تغییر
+    محتوا و با حفظ اطلاعات اصلی پیام.
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|from_chat_id| 	|str| 	از چتِ؟
+|message_id| 	|str| 	شناسه پیام
+|to_chat_id| 	|str| 	به چتِ؟
+|disable_notification| 	|bool| 	غیرفعال کردن اعلان؟ (پیشفرض false)
+
+  * خروجی
+
+فیلد 	نوع 	توضیحات
+|new_message_id| 	|str| 	شناسه پیام جدید
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/forwardMessage' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "from_chat_id": "{chat_id}",
+                "message_id": "{message_id}",
+                "to_chat_id": "{to_chat_id}"
+            }'
+
+    |
+
+    |import requests
+
+    data = {
+        "from_chat_id": chat_id,
+        "message_id": message_id,
+        "to_chat_id": to_chat_id
+    }
+    url = f'https://botapi.rubika.ir/v3/{token}/frowardMessage'
+    response = requests.post(url, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import forward_message
+
+    forward_message(
+        token='SUPER_SECRET_TOKEN',
+        from_chat_id='FIRST_CHAT_ID',
+        message_id='MESSAGE_ID',
+        to_chat_id='SECOND_CHAT_ID'
+    )
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/frowardMessage',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "from_chat_id": from_chat_id,
+        "message_id": message_id,
+        "to_chat_id": to_chat_id
+      })
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    ویرایش متن پیام¶ <#_9>
+
+  * متد: |editMessageText|
+  * این متد متن یک پیام ارسال‌شده توسط بات را ویرایش می‌کند، بدون ایجاد
+    پیام جدید در چت.
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|chat_id| 	|str| 	شناسه چت
+|message_id| 	|str| 	شناسه پیام
+|text| 	|str| 	پیام
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/editMessageText' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "chat_id": "{chat_id}",
+                "message_id": "{message_id}",
+                "text": "this is my new text"
+            }'
+
+    |
+
+    |import requests
+
+    data = {
+        "chat_id": chat_id,
+        "message_id": message_id,
+        "text": "this is my new text"
+    }
+    url = f'https://botapi.rubika.ir/v3/{token}/editMessageText'
+    response = requests.post(url, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import edit_message_text
+
+    edit_message_text(
+        token='SUPER_SECRET_TOKEN',
+        chat_id='CHAT_ID',
+        message_id='MESSAGE_ID',
+        text='New Message Text'
+    )
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/editMessageText',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "chat_id": chat_id,
+        "message_id": message_id,
+        "text": "this is my new text"
+      })
+
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    ویرایش Inline Keypad¶ <#inline-keypad>
+
+  * متد: |editMessageKeypad|
+  * این متد صفحه‌کلید (InlineKeypad) یک پیام موجود را به‌روزرسانی
+    می‌کند، بدون تغییر متن پیام.
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|chat_id| 	|str| 	شناسه چت
+|message_id| 	|str| 	شناسه پیام
+|inline_keypad| 	|Keypad| <https://rubika.ir/botapi/models#keypad> 	Keypad
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/editInlineKeypad' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "chat_id": "{chat_id}",
+                "message_id": "{message_id}",
+                "inline_keypad": {
+                    "rows": [
+                        {
+                            "buttons": [
+                                {
+                                    "id": "100",
+                                    "type": "Simple",
+                                    "button_text": "Add Account"
+                                }
+                            ]
+                        },
+                        {
+                            "buttons": [
+                                {
+                                    "id": "101",
+                                    "type": "Simple",
+                                    "button_text": "Edit Account"
+                                },
+                                {
+                                    "id": "102",
+                                    "type": "Simple",
+                                    "button_text": "Remove Account"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }'
+
+    |
+
+    |import requests
+    import json
+
+    url = f"https://botapi.rubika.ir/v3/{token}/editMessageText"
+
+    data = {
+      "chat_id": chat_id,
+      "message_id": message_id,
+      "inline_keypad": {
+        "rows": [
+          {
+            "buttons": [
+              {
+                "id": "100",
+                "type": "Simple",
+                "button_text": "Add Account"
+              }
+            ]
+          },
+          {
+            "buttons": [
+              {
+                "id": "101",
+                "type": "Simple",
+                "button_text": "Edit Account"
+              },
+              {
+                "id": "102",
+                "type": "Simple",
+                "button_text": "Remove Account"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    headers = {
+      'Content-Type': 'application/json'
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import edit_message_keypad
+    from rubika_bot.models import Button, Keypad, KeypadRow
+
+    b1 = Button(id='100', type='Simple', button_text='Add Account')
+    b2 = Button(id='101', type='Simple', button_text='Edit Account')
+    b3 = Button(id='102', type='Simple', button_text='Remove Account')
+    new_keypad = Keypad(
+        rows=[
+            KeypadRow(buttons=[b1]),
+            KeypadRow(buttons=[b2, b3])
+        ],
+    )
+
+    edit_message_keypad(
+        token='SUPER_SECRET_TOKEN',
+        chat_id='CHAT_ID',
+        message_id='MESSAGE_ID',
+        inline_keypad=new_keypad
+    )
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/editMessageText',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+          "chat_id": chat_id,
+          "message_id": message_id,
+          "inline_keypad": {
+            "rows": [
+              {
+                "buttons": [
+                  {
+                    "id": "100",
+                    "type": "Simple",
+                    "button_text": "Add Account"
+                  }
+                ]
+              },
+              {
+                "buttons": [
+                  {
+                    "id": "101",
+                    "type": "Simple",
+                    "button_text": "Edit Account"
+                  },
+                  {
+                    "id": "102",
+                    "type": "Simple",
+                    "button_text": "Remove Account"
+                  }
+                ]
+              }
+            ]
+          }
+        })
+
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    حذف پیام¶ <#_10>
+
+  * متد: |deleteMessage|
+  * این متد یک پیام مشخص را از چت حذف می‌کند، شامل پیام‌های ارسالی بات
+    یا پیام‌های دیگران (در صورت داشتن مجوز).
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|chat_id| 	|str| 	شناسه چت
+|message_id| 	|str| 	شناسه پیام
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/deleteMessage' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "chat_id": "{chat_id}",
+                "message_id": "{message_id}"
+            }'
+
+    |
+
+    |import requests
+
+    data = {
+        "chat_id": chat_id,
+        "message_id": chat_id
+    }
+    url = f'https://botapi.rubika.ir/v3/{token}/deleteMessage'
+    response = requests.post(url, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import delete_message
+
+    delete_message(
+        token='SUPER_SECRET_TOKEN',
+        chat_id='CHAT_ID',
+        message_id='MESSAGE_ID',
+    )
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/deleteMessage',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "chat_id": chat_id,
+        "message_id": message_id
+      })
+
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    تنظیم دستور‌ها (commands)¶ <#commands>
+
+  * متد: |setCommands|
+  * این متد فهرست دستورات قابل استفاده بات را تعریف یا به‌روزرسانی
+    می‌کند تا کاربر بتواند آنها را در رابط بات مشاهده کند.
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|bot_commands| 	|list[BotCommand]| <https://rubika.ir/botapi/
+models#botcommand> 	آرایه‌ای از دستورات
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/setCommands' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "bot_commands": [
+                    {
+                        "command": "command1",
+                        "description": "description1"
+                    },
+                    {
+                        "command": "command2",
+                        "description": "description2"
+                    },
+                ]
+            }'
+
+    |
+
+    |import requests
+
+    data = {
+        "bot_commands": [
+            {
+                "command": "command1",
+                "description": "description1"
+            },
+            {
+                "command": "command2",
+                "description": "description2"
+            },
+        ]
+    }
+    url = f'https://botapi.rubika.ir/v3/{token}/setCommands'
+    response = requests.post(url, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import set_commands
+    from rubika_bot.models import BotCommand
+
+    commands = [
+        BotCommand(command='command1', description='description 1'),
+        BotCommand(command='command2', description='description 2'),
+    ]
+    set_commands(token='SUPER_SECRET_TOKEN', bot_commands=commands)
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/setCommands',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+          "bot_commands": [
+              {
+                  "command": "command1",
+                  "description": "description1"
+              },
+              {
+                  "command": "command2",
+                  "description": "description2"
+              },
+          ]
+      })
+
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    آپدیت آدرس بات (URL Endpoint)¶ <#url-endpoint>
+
+  * متد: |updateBotEndpoints|
+  * این متد آدرس‌های endpoint بات را به‌روزرسانی می‌کند تا سرور بتواند
+    رویدادها و درخواست‌ها را به آدرس‌های جدید ارسال کند.
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|url| 	|str| 	آدرس جدید
+|type| 	|UpdateEndpointTypeEnum| <https://rubika.ir/botapi/
+models#updateendpointtypeenum> 	نوع آدرس
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/updateBotEndpoints' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "url": "https://example.com",
+                "type": "GetSelectionItem"
+            }'
+
+    |
+
+    |import requests
+
+    data = {
+        'url': 'https://example.com',
+        'type': 'GetSelectionItem',
+    }
+    url = f'https://botapi.rubika.ir/v3/{token}/updateBotEndpoints'
+    response = requests.post(url, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import update_bot_endpoint
+
+
+    update_bot_endpoint(token='SUPER_SECRET_TOKEN', url='https://example.com', type='GetSelectionItem')
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/updateBotEndpoints',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "url": 'https://example.com',
+        "type": "GetSelectionItem"
+      })
+
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    حذف keypad¶ <#keypad_1>
+
+  * متد: |editChatKeypad|
+  * این متد با مشخص کردن پارامتر |chat_keypad_type| با مقدار |Remove|،
+    صفحه‌کلید مرتبط با چت را حذف می‌کند و گزینه‌های تعاملی موجود در
+    پیام‌ها را از بین می‌برد.
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|chat_id| 	|str| 	شناسه چت
+|chat_keypad_type| 	|ChatKeypadTypeEnum| <https://rubika.ir/botapi/
+models#chatkeypadtypeenum> 	مقدارِ |Remove|
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/editChatKeypad' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "chat_id": "{chat_id}",
+                "chat_keypad_type": "Remove"
+            }'
+
+    |
+
+    |import requests
+
+    data = {
+        "chat_id": chat_id,
+        "chat_keypad_type": "Remove",
+    }
+    url = f'https://botapi.rubika.ir/v3/{token}/editChatKeypad'
+    response = requests.post(url, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import remove_chat_keypad
+
+    remove_chat_keypad(token='SUPER_SECRET_TOKEN', chat_id='CHAT_ID')
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/editChatKeypad',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "chat_id": chat_id,
+        "chat_keypad_type": "Remove"
+      })
+
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    ویرایش keypad¶ <#keypad_2>
+
+  * متد: |editChatKeypad|
+  * برای ویرایش صفحه‌کلید مرتبط با چت، باید پارامتر chat_keypad_type را
+    برابر New قرار دهید؛ این متد صفحه‌کلید مرتبط با چت را به‌روزرسانی
+    می‌کند.
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|chat_id| 	|str| 	شناسه چت
+|chat_keypad| 	|Keypad| <https://rubika.ir/botapi/models#keypad> 	keypad
+|chat_keypad_type| 	|ChatKeypadTypeEnum| <https://rubika.ir/botapi/
+models#chatkeypadtypeenum> 	مقدارِ |New|
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/editChatKeypad' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "chat_id": "{chat_id}",
+                "chat_keypad_type": "New",
+                "chat_keypad": {
+                    "rows": [
+                        {
+                            "buttons": [
+                                {
+                                    "id": "100",
+                                    "type": "Simple",
+                                    "button_text": "Add Account"
+                                }
+                            ]
+                        },
+                        {
+                            "buttons": [
+                                {
+                                    "id": "101",
+                                    "type": "Simple",
+                                    "button_text": "Edit Account"
+                                },
+                                {
+                                    "id": "102",
+                                    "type": "Simple",
+                                    "button_text": "Remove Account"
+                                }
+                            ]
+                        }
+                    ],
+                    "resize_keyboard": true,
+                    "on_time_keyboard": false
+                }
+            }'
+
+    |
+
+    |import requests
+
+    url = f"https://botapi.rubika.ir/v3/{token}/editChatKeypad"
+
+    data = {
+        "chat_id": chat_id,
+        "chat_keypad_type": "New",
+        "chat_keypad": {
+            "rows": [
+                {
+                    "buttons": [
+                        {
+                            "id": "100",
+                            "type": "Simple",
+                            "button_text": "Add Account"
+                        }
+                    ]
+                },
+                {
+                    "buttons": [
+                        {
+                            "id": "101",
+                            "type": "Simple",
+                            "button_text": "Edit Account"
+                        },
+                        {
+                            "id": "102",
+                            "type": "Simple",
+                            "button_text": "Remove Account"
+                        }
+                    ]
+                }
+            ],
+            "resize_keyboard": True,
+            "on_time_keyboard": False
+        }
+    }
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import edit_chat_keypad
+    from rubika_bot.models import Keypad, KeypadRow, Button
+
+    b1 = Button(id='100', type='Simple', button_text='Add Account')
+    b2 = Button(id='101', type='Simple', button_text='Edit Account')
+    b3 = Button(id='102', type='Simple', button_text='Remove Account')
+    keypad = Keypad(
+        rows=[
+            KeypadRow(buttons=[b1]),
+            KeypadRow(buttons=[b2, b3])
+        ],
+        resize_keyboard=True,
+        on_time_keyboard=False
+    )
+
+    edit_chat_keypad(token='SUPER_SECRET_TOKEN', chat_id='CHAT_ID', chat_keypad=keypad)
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/editChatKeypad',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+          "chat_id": chat_id,
+          "chat_keypad_type": "New",
+          "chat_keypad": {
+            "rows": [
+              {
+                "buttons": [
+                  {
+                    "id": "100",
+                    "type": "Simple",
+                    "button_text": "Add Account"
+                  }
+                ]
+              },
+              {
+                "buttons": [
+                  {
+                    "id": "101",
+                    "type": "Simple",
+                    "button_text": "Edit Account"
+                  },
+                  {
+                    "id": "102",
+                    "type": "Simple",
+                    "button_text": "Remove Account"
+                  }
+                ]
+              }
+            ],
+            "resize_keyboard": true,
+            "on_time_keyboard": false
+          }
+        })
+
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    دریافت فایل¶ <#_12>
+
+  * متد: |getFile|
+  * این متد مسیر دانلود یک فایل آپلود شده را بازمیگرداند، تا بات بتواند
+    فایل را دریافت کند.
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|file_id| 	|str| 	شناسه فایل
+
+  * خروجی
+
+فیلد 	نوع 	توضیحات
+|download_url| 	|str| 	آدرس فایل در سرور
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/getFile' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "file_id": "{file_id}"
+            }'
+
+    |
+
+    |import requests
+
+    data = {
+        "file_id": file_id,
+    }
+    url = f'https://botapi.rubika.ir/v3/{token}/getFile'
+    response = requests.post(url, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import get_file
+    from rubika_bot.models import File
+
+    file: File = get_file(
+        token='SUPER_SECRET_TOKEN',
+        file_id='FILE_ID',
+    )
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/getFile',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "file_id": file_id
+      })
+
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    ارسال فایل¶ <#_13>
+
+  * متد: |sendFile|
+  * این متد فایل مشخص شده را از بات به چت ارسال می‌کند، فایل میتواند
+    شامل محتوا و گزینه‌های اضافی مانند متن همراه یا صفحه‌کلید باشد.
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|chat_id| 	|str| 	شناسه چت
+|file_id| 	|str| 	شناسه فایل
+|text| 	|str| 	متن
+|reply_to_message_id| 	|str| 	در جوابِ پیامِ؟
+|disable_notification| 	|str| 	غیرفعال کردن اعلان؟ (پیشفرض false)
+|chat_keypad| 	|Keypad| <https://rubika.ir/botapi/models#keypad> 	keypad
+|inline_keypad| 	|Keypad| <https://rubika.ir/botapi/models#keypad> 	keypad
+|chat_keypad_type| 	|ChatKeypadTypeEnum| <https://rubika.ir/botapi/
+models#chatkeypadtypeenum> 	نوع keypad
+
+  * خروجی
+
+فیلد 	نوع 	توضیحات
+|message_id| 	|str| 	شناسه پیام
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/sendFile' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "chat_id": "{chat_id}",
+                "file_id": "{file_id}",
+            }'
+
+    |
+
+    |import requests
+
+    data = {
+        "chat_id": chat_id,
+        "file_id": file_id,
+    }
+    url = f'https://botapi.rubika.ir/v3/{token}/sendFile'
+    response = requests.post(url, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import sendFile
+
+    send_sticker(
+        token='SUPER_SECRET_TOKEN',
+        chat_id='CHAT_ID',
+        file_id='FILE_ID',
+    )
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/sendFile',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "chat_id": chat_id,
+        "file_id": file_id,
+      })
+
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+
+    آپلود فایل¶ <#_14>
+
+  * متد: |requestSendFile|
+  * این متد به بات امکان می‌دهد نوع فایل مورد نظر برای آپلود را مشخص کند
+    و در پاسخ، یک آدرس برای بارگذاری فایل دریافت می‌کند تا فایل مورد نظر
+    از طریق آن آدرس به سرور ارسال شود.
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|type| 	|FileTypeEnum| <https://rubika.ir/botapi/models#filetypeenum> 	
+نوع فایل
+
+  * خروجی
+
+فیلد 	نوع 	توضیحات
+|upload_url| 	|str| 	آدرس مخصوص آپلود فایل در سرور
+
+  *
+
+    مثال
+
+    cURL
+
+    Python
+
+    NodeJs
+
+    |curl --location -g --request POST 'https://botapi.rubika.ir/v3/{token}/requestSendFile' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "type": "Image",
+            }'
+
+    |
+
+    |import requests
+
+    data = {
+        "type": "Image",
+    }
+    url = f'https://botapi.rubika.ir/v3/{token}/requestSendFile'
+    response = requests.post(url, json=data)
+
+    print(response.text)
+
+    |
+
+    |from rubika_bot.requests import requestSendFile
+
+    send_sticker(
+        token='SUPER_SECRET_TOKEN',
+        type="Image",
+    )
+
+    |
+
+    |var request = require('request');
+    var options = {
+      'method': 'POST',
+      'url': 'https://botapi.rubika.ir/v3/{token}/requestSendFile',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "type": "Image",
+      })
+
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+
+    |
+
+آدرس دریافت شده در یک فیلد با نام |upload_url| برمی‌گردد که برای آپلود
+فایل از طریق درخواست |POST| استفاده می‌شود. فایل باید در بدنه |(Body)|
+درخواست ارسال گردد.
+
+
+  * ورودی
+
+فیلد 	نوع 	توضیحات
+|file| 	|(multipart/form-data)| 	فایل
+
+  * خروجی
+
+فیلد 	نوع 	توضیحات
+|file_id| 	|str| 	شناسه فایل
+
+قبلی معرفی
+<https://rubika.ir/botapi>
+بعدی مدل ها
+
+<https://rubika.ir/botapi/models>
+

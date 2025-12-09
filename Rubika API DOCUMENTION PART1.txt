@@ -1,0 +1,151 @@
+پرش به محتویات <#_1>
+logo <https://rubika.ir/botapi>
+
+بات روبیکا
+معرفی
+
+logo <https://rubika.ir/botapi> بات روبیکا
+
+  * معرفی معرفی <https://rubika.ir/botapi>
+    فهرست موضوعات
+
+      o مراحل استفاده <#_1>
+      o توضیحات <#_2>
+          + receiveUpdate <#receiveupdate>
+          + receiveInlineMessage <#receiveinlinemessage>
+
+  * متد ها <https://rubika.ir/botapi/methods>
+  * مدل ها <https://rubika.ir/botapi/models>
+  * گروه ها و کانال ها <https://rubika.ir/botapi/group-channel>
+
+فهرست موضوعات
+
+  * مراحل استفاده <#_1>
+  * توضیحات <#_2>
+      o receiveUpdate <#receiveupdate>
+      o receiveInlineMessage <#receiveinlinemessage>
+
+
+  معرفی
+
+روبیکا API هایی در اختیار کاربران قرار می‌دهد که با استفاده از آنها
+می‌توانید «بات» خودتان را بسازید. برای استفاده از این امکان تازه، مراحل
+زیر را طی کنید.
+
+
+    مراحل استفاده¶ <#_1>
+
+  * با استفاده از Bot Father به آدرس @BotFather <https://rubika.ir/
+    BotFather> در روبیکا یک بات بسازید.
+  * توکن دریافتی را کپی کنید و در باقی مراحل از آن استفاده کنید.
+  * با استفاده از توکن دریافتی در مرحله‌ قبل و مِتُد مورد نظر، URL ای با
+    قالب زیر بسازید و با متد POST به آن Request بزنید.
+
+|https://botapi.rubika.ir/v3/{token}/{method}
+
+|
+
+
+    توضیحات¶ <#_2>
+
+بعد از اینکه بات را در Bot Father ساختید، می توانید با فراخوانی متد
+getUpdates <https://rubika.ir/botapi/methods#_7> یا دریافت اطلاعات از
+طریق تعریف Endpoint با متد updateBotEndpoint <https://rubika.ir/botapi/
+methods#url-endpoint> رخدادها و پیام ها را در قالب Update <https://
+rubika.ir/botapi/models#update> دریافت نمایید.
+
+لازم به توضیح است که در صورتیکه بخواهید از متد getUpdates استفاده
+نمایید، باید در فاصله های زمانی مشخص و با در اختیار داشتن start_id که از
+فراخوانی قبلی دریافت کرده اید، رخدادها و پیام های جدید را دریافت کنید.
+دقت داشته باشید که در این روش، ممکن است شما با تاخیر از رویدادها آگاه
+شوید و به همین میزان تاخیر نیز به کاربر واکنش نشان دهید.
+
+در روش دوم، با تنظیم کردن Endoint سرور خود به محض ارسال پیام به بات شما
+و یا هر رویداد مرتبط با بات، روبیکا رویدادها را به آدرسی که مشخص کرده
+اید ارسال کرده و شما را از آخرین تغییرات آگاه می سازد. دقت داشته باشید
+که برای رویدادها مختلف آدرس های مختلفی می بایست تعیین گردد که در ادامه
+به مهمترین آنها اشاره شده است.
+
+  * |receiveUpdate|آدرس مشخص شده در این پارامتر، رویدادهای مربوط به
+    receiveUpdate را ارسال می کند.
+  * |receiveInlineMessage|آدرس مشخص شده در این پارامتر، رویدادهای مربوط
+    به receiveInlineMessage را ارسال می کند.
+
+
+      _receiveUpdate_¶ <#receiveupdate>
+
+هر زمان کاربر *پیامی ارسال * کند یا *chat keypad (دکمه های پایین صفحه
+چت)* را لمس کند، شما |receiveUpdate| دریافت می‌کنید.
+
+
+/نمونه body :/
+
+|{
+    "inline_message": {
+        "sender_id": "u0QFtn01dd26d72abc5c77b8e116cd79",
+        "text": "custom text",
+        "location": null,
+        "aux_data": {
+            "start_id": null,
+            "button_id": "61f674bd0abcd57b5b816a7c"
+        },
+        "message_id": "204216801381244279",
+        "chat_id": "b0QFtabc1I02214b529f1d60c9ce5b08"
+    }
+}
+
+|
+
+  * *sender_id : * شناسه‌ای یکتا که به کاربر تعلق می‌گیرد.
+  * *text : *متن دکمه‌ای که ارسال شده.
+  * *button_id : *شناسه‌ای که شما برای دکمه مورد نظر تنظیم کرده‌اید.
+  * *message_id : *شناسه‌ای یکتا که به پیام تعلق می‌گیرد.
+  * *chat_id : *شناسه‌ای یکتا که به مکالمه‌ی بین کاربر و ربات تعلق
+    می‌گیرد *(شما در ادامه باید از این شناسه استفاده کنید.) *
+
+
+      _receiveInlineMessage_¶ <#receiveinlinemessage>
+
+هر گاه کاربر روی *inline keypad (دکمه های شیشه ای زیر یک پیام)* بزند،
+شما |receiveInlineMessage| دریافت می‌کنید.
+
+
+/نمونه body :/
+
+|{
+  "update": {
+      "type": "NewMessage",
+      "chat_id": "b0QFtn0C1I022abcd29f1d60c9ce5b08",
+      "new_message": {
+          "message_id": 204215121115944300,
+          "text": "custom text",
+          "time": "1643122902",
+          "is_edited": false,
+          "sender_type": "User",
+          "sender_id": "u0QFtn0abcded727585c77b8e116cd79",
+          "aux_data": {
+              "start_id": null,
+              "button_id": "61f674bd0abcd57b5b816a7c"
+          }
+      }
+  }
+}
+
+|
+
+  * *type : * می‌تواند *NewMessage *, *StartedBot *, *StoppedBot* و...
+    باشد.
+  * *text : *متن دکمه‌ای که ارسال شده.
+  * *button_id : *شناسه‌ای است که شما برای دکمه مورد نظر تنظیم کرده‌اید.
+  * *message_id : *شناسه‌ای یکتا که به پیام تعلق می‌گیرد.
+  * *chat_id : *شناسه‌ای یکتا که به مکالمه‌ی بین کاربر و ربات تعلق
+    می‌گیرد *(شما در ادامه باید از این شناسه استفاده کنید.) *
+
+زمانی که شما از طرف بات به شکل بالا Request را دریافت و پردازش کردید،
+می‌توانید با استفاده از این متد‌ها <https://rubika.ir/botapi/methods> به
+آن پاسخ دهید.
+
+بعدی متد ها
+
+<https://rubika.ir/botapi/methods>
+
