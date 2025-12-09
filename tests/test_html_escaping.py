@@ -6,9 +6,6 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-telegram = pytest.importorskip("telegram")
-from telegram.constants import ParseMode  # noqa: E402  (import after skip)
-
 
 @pytest.fixture
 def anyio_backend() -> str:
@@ -24,11 +21,11 @@ class DummyChat:
         self.id = chat_id
         self.messages: list[dict[str, object]] = []
 
-    async def send_message(self, text: str, parse_mode: ParseMode | None = None, reply_markup=None) -> None:  # type: ignore[override]
+    async def send_message(self, text: str, reply_markup=None, reply_to_message_id=None) -> None:  # type: ignore[override]
         self.messages.append({
             "text": text,
-            "parse_mode": parse_mode,
             "reply_markup": reply_markup,
+            "reply_to": reply_to_message_id,
         })
 
 
@@ -82,17 +79,15 @@ async def test_dm_application_rendering_escapes_html() -> None:
     chat = DummyChat()
     user = SimpleNamespace(id=1)
     update = SimpleNamespace(effective_chat=chat, effective_user=user)
-    context = SimpleNamespace(bot_data={})
+    context = SimpleNamespace(bot_data={}, user_data={}, chat_data={}, bot=SimpleNamespace(send_message=lambda *_, **__: None))
 
     await handlers.list_applications(update, context)
 
     assert chat.messages, "Expected at least one message to be sent"
     text = chat.messages[0]["text"]
-    parse_mode = chat.messages[0]["parse_mode"]
     assert "Eve &lt;Leader&gt;" in text
     assert "@eve&lt;leader&gt;" in text
     assert "I love &amp; support" in text
-    assert parse_mode == ParseMode.HTML
 
 
 @pytest.mark.anyio("asyncio")
@@ -127,16 +122,14 @@ async def test_group_leaderboards_escape_user_generated_content(
     chat_xp = DummyChat(chat_id=100)
     user = SimpleNamespace(id=1, language_code=language_code, full_name="Test User")
     update_xp = SimpleNamespace(effective_chat=chat_xp, effective_user=user)
-    context = SimpleNamespace(chat_data={})
+    context = SimpleNamespace(chat_data={}, bot_data={}, user_data={}, bot=SimpleNamespace(send_message=lambda *_, **__: None))
 
     await handlers.show_xp_leaderboard(update_xp, context)
 
     assert chat_xp.messages, "XP leaderboard message should be sent"
     xp_text = chat_xp.messages[0]["text"]
-    xp_mode = chat_xp.messages[0]["parse_mode"]
     assert xp_text.splitlines()[0] == expected_xp_title
     assert "Hero &lt;One&gt;" in xp_text
-    assert xp_mode == ParseMode.HTML
 
     chat_cup = DummyChat(chat_id=100)
     update_cup = SimpleNamespace(effective_chat=chat_cup, effective_user=user)
@@ -145,11 +138,9 @@ async def test_group_leaderboards_escape_user_generated_content(
 
     assert chat_cup.messages, "Cup leaderboard message should be sent"
     cup_text = chat_cup.messages[0]["text"]
-    cup_mode = chat_cup.messages[0]["parse_mode"]
     assert cup_text.splitlines()[0] == expected_cup_title
     assert "Champions &lt;Cup&gt;" in cup_text
     assert "Best &amp; Bold" in cup_text
     assert "Alice &lt;A&gt;" in cup_text
     assert "Bob &amp; Co" in cup_text
     assert expected_separator in cup_text
-    assert cup_mode == ParseMode.HTML

@@ -1,5 +1,13 @@
 # FlyzexBot cPanel Deployment Guide
 
+> **Rubika update:** The bot now ships with a native Rubika adapter. If you are migrating from Telegram, you can keep the same deployment flow—just provide your Rubika bot token via `BOT_TOKEN` and point `config/settings.yaml` to the correct storage paths. For Telegram deployments, use the checklist below before following the full guide.
+
+### Quick Telegram deployment checklist
+- Create a bot with [@BotFather](https://t.me/botfather) and copy the token.
+- Export the token as `BOT_TOKEN` in your environment or hosting control panel.
+- Duplicate `config/settings.example.yaml` to `config/settings.yaml` and adjust storage paths if needed.
+- Install dependencies from `requirements.txt` and run `python bot.py`.
+
 This guide walks you through preparing, configuring, and running FlyzexBot on shared hosting that uses **cPanel**. Every section builds on the previous one, so follow the steps in order and keep cPanel open in another browser tab while you work.
 
 ---
