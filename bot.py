@@ -2,10 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import time
 from pathlib import Path
-
-from telegram.ext import AIORateLimiter, ApplicationBuilder
 
 from flyzexbot.config import Settings
 from flyzexbot.handlers.dm import DMHandlers
@@ -14,6 +11,7 @@ from flyzexbot.localization import get_default_text_pack
 from flyzexbot.services.analytics import AnalyticsTracker
 from flyzexbot.services.security import RateLimitGuard
 from flyzexbot.services.storage import Storage, configure_timezone
+from flyzexbot.rubika import RubikaAPI, RubikaApplication
 
 CONFIG_PATH = Path("config/settings.yaml")
 
@@ -73,14 +71,8 @@ async def build_application(settings: Settings) -> None:
         analytics=analytics,
     )
 
-    application = (
-        ApplicationBuilder()
-        .token(settings.get_bot_token())
-        .rate_limiter(AIORateLimiter())
-        .concurrent_updates(True)
-        .arbitrary_callback_data(True)
-        .build()
-    )
+    api = RubikaAPI(settings.get_bot_token())
+    application = RubikaApplication(api)
 
     application.bot_data["review_chat_id"] = settings.telegram.application_review_chat
     application.bot_data["analytics"] = analytics
@@ -95,58 +87,11 @@ async def build_application(settings: Settings) -> None:
     for handler in group_handlers.build_handlers():
         application.add_handler(handler)
 
-    # Rate-limit user-facing error notifications per chat to avoid spam
-    error_notify_last: dict[int, float] = {}
-    ERROR_NOTIFY_COOLDOWN_SEC = 60.0
-
-    async def post_init(app) -> None:
-        await app.bot.set_my_commands(
-            [
-                ("start", "شروع"),
-                ("pending", "درخواست‌های در صف (ادمین)"),
-                ("admins", "لیست ادمین‌ها"),
-                ("help", "راهنمای دستورات"),
-                ("myxp", "نمایش XP من"),
-                ("xp", "نمایش لیدربورد تجربه"),
-                ("cups", "نمایش جام‌ها"),
-                ("panel", "کنترل‌پنل گیلد"),
-            ]
-        )
-
-    application.post_init = post_init
-
-    default_texts = get_default_text_pack()
-
-    async def error_handler(update, context) -> None:
-        logging.getLogger(__name__).error("Exception while handling update", exc_info=context.error)
-        await analytics.record("application_error")
-        if update and context.application and update.effective_chat is not None:
-            chat_id = update.effective_chat.id
-            now = time.monotonic()
-            last = error_notify_last.get(chat_id, 0.0)
-            if now - last >= ERROR_NOTIFY_COOLDOWN_SEC:
-                try:
-                    await context.application.bot.send_message(
-                        chat_id=chat_id,
-                        text=default_texts.error_generic,
-                    )
-                except Exception as exc:
-                    logging.getLogger(__name__).debug("Failed to notify user about error: %s", exc)
-                finally:
-                    error_notify_last[chat_id] = now
-
-    application.add_error_handler(error_handler)
-
+    logging.info("FlyzexBot Rubika adapter is running with polling mode.")
     try:
-        await application.initialize()
-        await application.start()
-        await application.updater.start_polling(drop_pending_updates=True)
-        logging.info("FlyzexBot is running with glass-panel UI.")
-        await asyncio.Event().wait()
+        await application.run_polling()
     finally:
-        await application.updater.stop()
-        await application.stop()
-        await application.shutdown()
+        await api.close()
         await storage.save()
         await analytics.stop()
 

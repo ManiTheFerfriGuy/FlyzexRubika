@@ -6,11 +6,14 @@ import logging
 import time
 from typing import Any, Dict, List, Sequence, Tuple
 
-from telegram import (ChatMember, ChatPermissions, InlineKeyboardButton,
-                      InlineKeyboardMarkup, Update)
-from telegram.constants import ParseMode
-from telegram.ext import (CallbackQueryHandler, CommandHandler, ContextTypes,
-                          MessageHandler, filters)
+from ..rubika import (
+    CallbackQueryHandler,
+    CommandHandler,
+    MessageHandler,
+    Update,
+    filters,
+)
+from ..rubika.models import ApplicationContext
 
 from ..localization import (AVAILABLE_LANGUAGE_CODES, DEFAULT_LANGUAGE_CODE,
                             PERSIAN_TEXTS, TextPack, get_default_text_pack,
@@ -68,7 +71,7 @@ class GroupHandlers:
             CallbackQueryHandler(self.handle_personal_panel_action, pattern=r"^personal_panel:"),
         ]
 
-    async def track_activity(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def track_activity(self, update: Update, context: ApplicationContext) -> None:
         message = update.effective_message
         if message is None or update.effective_chat is None or update.effective_user is None:
             return
@@ -153,7 +156,7 @@ class GroupHandlers:
         )
         await self.analytics.record("group.activity_tracked")
 
-    async def command_add_xp(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def command_add_xp(self, update: Update, context: ApplicationContext) -> None:
         chat = update.effective_chat
         actor = update.effective_user
         message = update.effective_message
@@ -202,7 +205,7 @@ class GroupHandlers:
             )
         )
 
-    async def command_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def command_help(self, update: Update, context: ApplicationContext) -> None:
         chat = update.effective_chat
         actor = update.effective_user
         message = update.effective_message
@@ -215,14 +218,10 @@ class GroupHandlers:
         except Exception:
             include_admin = False
         help_text = self._build_help_text(texts, include_admin=include_admin)
-        await message.reply_text(
-            help_text,
-            parse_mode=ParseMode.HTML,
-            disable_web_page_preview=True,
-        )
+        await message.reply_text(help_text)
         await self.analytics.record("group.help_requested")
 
-    async def command_my_xp(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def command_my_xp(self, update: Update, context: ApplicationContext) -> None:
         chat = update.effective_chat
         actor = update.effective_user
         message = update.effective_message
@@ -246,10 +245,10 @@ class GroupHandlers:
             level=progress.level,
             xp_to_next=progress.xp_to_next,
         )
-        await message.reply_text(response, parse_mode=ParseMode.HTML)
+        await message.reply_text(response)
         await self.analytics.record("group.my_xp_requested")
 
-    async def show_panel(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def show_panel(self, update: Update, context: ApplicationContext) -> None:
         chat = update.effective_chat
         actor = update.effective_user
         message = update.effective_message
@@ -262,14 +261,10 @@ class GroupHandlers:
 
         context.chat_data["group_panel_active_menu"] = "root"
         panel_text, markup = self._compose_group_panel(chat, texts, menu="root")
-        await message.reply_text(
-            panel_text,
-            parse_mode=ParseMode.HTML,
-            reply_markup=markup,
-        )
+        await message.reply_text(panel_text, reply_markup=markup)
         await self.analytics.record("group.panel_opened")
 
-    async def handle_panel_action(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def handle_panel_action(self, update: Update, context: ApplicationContext) -> None:
         query = update.callback_query
         if not query or not query.data:
             return
@@ -307,28 +302,16 @@ class GroupHandlers:
                     menu=str(active_menu),
                 )
                 try:
-                    await message.edit_text(
-                        panel_text,
-                        parse_mode=ParseMode.HTML,
-                        reply_markup=markup,
-                    )
+                    await message.edit_text(panel_text, reply_markup=markup)
                 except Exception:
-                    await message.reply_text(
-                        panel_text,
-                        parse_mode=ParseMode.HTML,
-                        reply_markup=markup,
-                    )
+                    await message.reply_text(panel_text, reply_markup=markup)
             await self.analytics.record("group.panel_refreshed")
             return
 
         if scope == "help":
             help_text = self._build_help_text(texts, include_admin=True)
             if message:
-                await message.reply_text(
-                    help_text,
-                    parse_mode=ParseMode.HTML,
-                    disable_web_page_preview=True,
-                )
+                await message.reply_text(help_text)
             await self.analytics.record("group.help_requested")
             return
 
@@ -342,17 +325,9 @@ class GroupHandlers:
                     menu=target_menu,
                 )
                 try:
-                    await message.edit_text(
-                        panel_text,
-                        parse_mode=ParseMode.HTML,
-                        reply_markup=markup,
-                    )
+                    await message.edit_text(panel_text, reply_markup=markup)
                 except Exception:
-                    await message.reply_text(
-                        panel_text,
-                        parse_mode=ParseMode.HTML,
-                        reply_markup=markup,
-                    )
+                    await message.reply_text(panel_text, reply_markup=markup)
             return
 
         if scope != "action":
@@ -384,13 +359,8 @@ class GroupHandlers:
             return
 
         if action == "cups_latest":
-            text, mode, markup = self._compose_cup_leaderboard(chat.id, texts)
-            kwargs: Dict[str, Any] = {}
-            if mode:
-                kwargs["parse_mode"] = mode
-            if markup:
-                kwargs["reply_markup"] = markup
-            await message.reply_text(text, **kwargs)
+            text, markup = self._compose_cup_leaderboard(chat.id, texts)
+            await message.reply_text(text, reply_markup=markup)
             return
 
         if action == "cups_help":
@@ -399,7 +369,7 @@ class GroupHandlers:
 
         if action == "admins_list":
             admins_text = self._render_admins_list(texts)
-            await message.reply_text(admins_text, parse_mode=ParseMode.HTML)
+            await message.reply_text(admins_text)
             return
 
         if action == "admins_help":
@@ -409,16 +379,16 @@ class GroupHandlers:
         if action in {"settings_tools", "settings_help"}:
             await message.reply_text(texts.group_panel_settings_hint)
 
-    async def show_xp_leaderboard(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def show_xp_leaderboard(self, update: Update, context: ApplicationContext) -> None:
         chat = update.effective_chat
         if chat is None:
             return
         texts = self._get_texts(context, getattr(update.effective_user, "language_code", None))
         await self.analytics.record("group.xp_leaderboard_requested")
-        text, mode, markup = await self._compose_xp_leaderboard(context, chat.id, texts)
-        await chat.send_message(text, parse_mode=mode, reply_markup=markup)
+        text, markup = await self._compose_xp_leaderboard(context, chat.id, texts)
+        await chat.send_message(text, reply_markup=markup)
 
-    async def add_cup(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def add_cup(self, update: Update, context: ApplicationContext) -> None:
         chat = update.effective_chat
         user = update.effective_user
         if chat is None or user is None:
@@ -461,16 +431,16 @@ class GroupHandlers:
         await chat.send_message(texts.group_cup_added.format(title=title))
         await self.analytics.record("group.cup_added")
 
-    async def show_cup_leaderboard(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def show_cup_leaderboard(self, update: Update, context: ApplicationContext) -> None:
         chat = update.effective_chat
         if chat is None:
             return
         texts = self._get_texts(context, getattr(update.effective_user, "language_code", None))
         await self.analytics.record("group.cup_leaderboard_requested")
-        text, mode, markup = self._compose_cup_leaderboard(chat.id, texts)
-        await chat.send_message(text, parse_mode=mode, reply_markup=markup)
+        text, markup = self._compose_cup_leaderboard(chat.id, texts)
+        await chat.send_message(text, reply_markup=markup)
 
-    async def handle_leaderboard_refresh(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def handle_leaderboard_refresh(self, update: Update, context: ApplicationContext) -> None:
         query = update.callback_query
         if not query or not query.data:
             return
@@ -488,12 +458,12 @@ class GroupHandlers:
             return
         texts = self._get_texts(context, getattr(query.from_user, "language_code", None))
         if board_type == "xp":
-            text, mode, markup = await self._compose_xp_leaderboard(context, chat_id, texts)
+            text, markup = await self._compose_xp_leaderboard(context, chat_id, texts)
             await self.analytics.record("group.xp_leaderboard_refreshed")
         else:
-            text, mode, markup = self._compose_cup_leaderboard(chat_id, texts)
+            text, markup = self._compose_cup_leaderboard(chat_id, texts)
             await self.analytics.record("group.cup_leaderboard_refreshed")
-        await message.edit_text(text, parse_mode=mode, reply_markup=markup)
+        await message.chat.edit_message_text(message.message_id, text, reply_markup=markup)
 
     def _build_help_text(self, texts: TextPack, *, include_admin: bool) -> str:
         lines: List[str] = [texts.group_help_intro, "", texts.group_help_member_title]
@@ -525,7 +495,7 @@ class GroupHandlers:
         texts: TextPack,
         *,
         menu: str = "root",
-    ) -> Tuple[str, InlineKeyboardMarkup]:
+    ) -> Tuple[str, dict]:
         snapshot = self.storage.get_group_snapshot(getattr(chat, "id", 0)) or {}
 
         chat_title_raw = (
@@ -640,7 +610,7 @@ class GroupHandlers:
 
     async def _send_xp_members_overview(
         self,
-        context: ContextTypes.DEFAULT_TYPE,
+        context: ApplicationContext,
         chat_id: int,
         message,
         texts: TextPack,
@@ -673,7 +643,7 @@ class GroupHandlers:
             count=len(leaderboard),
             members=members_block,
         )
-        await message.reply_text(text, parse_mode=ParseMode.HTML)
+        await message.reply_text(text)
 
     def _render_admins_list(self, texts: TextPack) -> str:
         details_getter = getattr(self.storage, "get_admin_details", None)
@@ -729,7 +699,7 @@ class GroupHandlers:
     async def _handle_admin_toggle(
         self,
         update: Update,
-        context: ContextTypes.DEFAULT_TYPE,
+        context: ApplicationContext,
         *,
         promote: bool,
     ) -> None:
@@ -784,7 +754,7 @@ class GroupHandlers:
         )
 
     async def handle_personal_panel_action(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         query = update.callback_query
         if not query or not query.data:
@@ -837,20 +807,12 @@ class GroupHandlers:
         user_state["last_view"] = view
 
         try:
-            await message.edit_text(
-                panel_text,
-                parse_mode=ParseMode.HTML,
-                reply_markup=markup,
-            )
+            await message.edit_text(panel_text, reply_markup=markup)
         except Exception:
-            await message.reply_text(
-                panel_text,
-                parse_mode=ParseMode.HTML,
-                reply_markup=markup,
-            )
+            await message.reply_text(panel_text, reply_markup=markup)
 
     async def _maybe_handle_panel_response(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> bool:
         message = update.effective_message
         chat = update.effective_chat
@@ -892,9 +854,8 @@ class GroupHandlers:
             if target is None:
                 await message.reply_text(texts.group_panel_invalid_target)
                 return True
-            permissions = ChatPermissions(can_send_messages=False)
             try:
-                await context.bot.restrict_chat_member(chat.id, target.id, permissions=permissions)
+                await context.bot.restrict_chat_member(chat.id, target.id, permissions={"can_send_messages": False})
             except Exception as exc:
                 LOGGER.error("Failed to mute %s: %s", target.id, exc)
                 await message.reply_text(texts.group_panel_action_error)
@@ -955,7 +916,7 @@ class GroupHandlers:
     async def _maybe_handle_keyword_interaction(
         self,
         update: Update,
-        context: ContextTypes.DEFAULT_TYPE,
+        context: ApplicationContext,
         *,
         current_total: int | None = None,
     ) -> bool:
@@ -1104,7 +1065,7 @@ class GroupHandlers:
             }
 
         if summary_kwargs:
-            await message.reply_text(summary.format(**summary_kwargs), parse_mode=ParseMode.HTML)
+            await message.reply_text(summary.format(**summary_kwargs))
         else:
             await message.reply_text(summary)
 
@@ -1123,33 +1084,30 @@ class GroupHandlers:
         return True
 
 
-    async def _is_admin(self, context: ContextTypes.DEFAULT_TYPE, chat_id: int, user_id: int) -> bool:
-        try:
-            member: ChatMember = await context.bot.get_chat_member(chat_id, user_id)
-        except Exception as exc:
-            LOGGER.error("Failed to fetch chat member: %s", exc)
-            return False
-        return member.status in {"administrator", "creator"} or self.storage.is_admin(user_id)
+    async def _is_admin(self, context: ApplicationContext, chat_id: int, user_id: int) -> bool:
+        return self.storage.is_admin(user_id)
 
     async def _resolve_leaderboard_names(
         self,
-        context: ContextTypes.DEFAULT_TYPE,
+        context: ApplicationContext,
         chat_id: int,
         leaderboard: Sequence[Tuple[str, int]],
     ) -> List[Tuple[str, int]]:
         resolved: List[Tuple[str, int]] = []
         for user_id, xp in leaderboard:
-            try:
-                member = await context.bot.get_chat_member(chat_id, int(user_id))
-                display = member.user.full_name or member.user.username or f"کاربر {user_id}"
-            except Exception:
+            getter = getattr(self.storage, "get_xp_profile", None)
+            profile = getter(user_id) if callable(getter) else None
+            display = None
+            if isinstance(profile, dict):
+                display = profile.get("full_name") or profile.get("username")
+            if not display:
                 display = f"کاربر {user_id}"
             resolved.append((display, xp))
         return resolved
 
     def _get_texts(
         self,
-        context: ContextTypes.DEFAULT_TYPE,
+        context: ApplicationContext,
         language_code: str | None = None,
     ) -> TextPack:
         chat_data = getattr(context, "chat_data", None)
@@ -1182,13 +1140,13 @@ class GroupHandlers:
 
     async def _compose_xp_leaderboard(
         self,
-        context: ContextTypes.DEFAULT_TYPE,
+        context: ApplicationContext,
         chat_id: int,
         texts: TextPack,
-    ) -> Tuple[str, ParseMode | None, InlineKeyboardMarkup | None]:
+    ) -> Tuple[str, dict | None]:
         leaderboard = self.storage.get_xp_leaderboard(chat_id, self.xp_limit)
         if not leaderboard:
-            return (texts.group_no_data, None, None)
+            return (texts.group_no_data, None)
         resolved = await self._resolve_leaderboard_names(context, chat_id, leaderboard)
         lines: List[str] = [texts.group_xp_leaderboard_title]
         for index, (display_name, xp) in enumerate(resolved, start=1):
@@ -1199,11 +1157,11 @@ class GroupHandlers:
             )
         text = "\n".join(lines)
         markup = leaderboard_refresh_keyboard("xp", chat_id, texts)
-        return (text, ParseMode.HTML, markup)
+        return (text, markup)
 
     async def _compose_personal_panel(
         self,
-        context: ContextTypes.DEFAULT_TYPE,
+        context: ApplicationContext,
         chat_id: int,
         user,
         texts: TextPack,
@@ -1211,7 +1169,7 @@ class GroupHandlers:
         chat_title: str,
         view: str = "profile",
         current_total: int | None = None,
-    ) -> Tuple[str, InlineKeyboardMarkup]:
+    ) -> Tuple[str, dict]:
         safe_title = escape(str(chat_title))
         xp_total = current_total
         if xp_total is None:
@@ -1294,35 +1252,38 @@ class GroupHandlers:
         else:
             lines.append(texts.group_no_data)
 
-        buttons: List[List[InlineKeyboardButton]] = [
+        buttons = [
             [
-                InlineKeyboardButton(
-                    text=f"👤 {texts.group_personal_panel_profile_button}",
-                    callback_data=f"personal_panel:view:{chat_id}:profile",
-                ),
-                InlineKeyboardButton(
-                    text=f"📊 {texts.group_personal_panel_leaderboard_button}",
-                    callback_data=f"personal_panel:view:{chat_id}:leaderboard",
-                ),
+                {
+                    "id": f"personal_panel:view:{chat_id}:profile",
+                    "type": "Simple",
+                    "button_text": f"👤 {texts.group_personal_panel_profile_button}",
+                },
+                {
+                    "id": f"personal_panel:view:{chat_id}:leaderboard",
+                    "type": "Simple",
+                    "button_text": f"📊 {texts.group_personal_panel_leaderboard_button}",
+                },
             ],
             [
-                InlineKeyboardButton(
-                    text=f"🔄 {texts.group_personal_panel_refresh_button}",
-                    callback_data=f"personal_panel:refresh:{chat_id}:{view}",
-                )
+                {
+                    "id": f"personal_panel:refresh:{chat_id}:{view}",
+                    "type": "Simple",
+                    "button_text": f"🔄 {texts.group_personal_panel_refresh_button}",
+                }
             ],
         ]
 
-        return ("\n".join(lines), InlineKeyboardMarkup(buttons))
+        return ("\n".join(lines), {"rows": [{"buttons": row} for row in buttons]})
 
     def _compose_cup_leaderboard(
         self,
         chat_id: int,
         texts: TextPack,
-    ) -> Tuple[str, ParseMode | None, InlineKeyboardMarkup | None]:
+    ) -> Tuple[str, dict | None]:
         cups = self.storage.get_cups(chat_id, self.cups_limit)
         if not cups:
-            return (texts.group_no_data, None, None)
+            return (texts.group_no_data, None)
         lines: List[str] = [texts.group_cup_leaderboard_title]
         for cup in cups:
             title = escape(str(cup.get("title", "")))
@@ -1333,9 +1294,9 @@ class GroupHandlers:
             lines.append(f"<b>{title}</b> — {description}\n🥇 {podium}")
         text = "\n\n".join(lines)
         markup = leaderboard_refresh_keyboard("cups", chat_id, texts)
-        return (text, ParseMode.HTML, markup)
+        return (text, markup)
 
-    def _ensure_personal_panel_state(self, context: ContextTypes.DEFAULT_TYPE) -> Dict[str, object]:
+    def _ensure_personal_panel_state(self, context: ApplicationContext) -> Dict[str, object]:
         user_data = getattr(context, "user_data", None)
         if not isinstance(user_data, dict):
             setattr(context, "user_data", {})
@@ -1350,7 +1311,7 @@ class GroupHandlers:
         return state
 
     def _resolve_personal_panel_chat_title(
-        self, context: ContextTypes.DEFAULT_TYPE, chat_id: int
+        self, context: ApplicationContext, chat_id: int
     ) -> str:
         state = self._ensure_personal_panel_state(context)
         chats = state.get("chats")
@@ -1362,7 +1323,7 @@ class GroupHandlers:
 
     async def _send_personal_panel(
         self,
-        context: ContextTypes.DEFAULT_TYPE,
+        context: ApplicationContext,
         chat,
         user,
         texts: TextPack,
@@ -1406,7 +1367,6 @@ class GroupHandlers:
             sent_message = await bot.send_message(
                 chat_id=getattr(chat, "id", 0),
                 text=panel_text,
-                parse_mode=ParseMode.HTML,
                 reply_markup=markup,
             )
         except Exception as exc:
@@ -1422,7 +1382,7 @@ class GroupHandlers:
 
     def _schedule_temporary_message(
         self,
-        context: ContextTypes.DEFAULT_TYPE,
+        context: ApplicationContext,
         chat_id: int,
         message_id: int | None,
         delay: float = 60.0,
@@ -1504,7 +1464,7 @@ class GroupHandlers:
 
     async def _fetch_member(
         self,
-        context: ContextTypes.DEFAULT_TYPE,
+        context: ApplicationContext,
         chat_id: int,
         raw_identifier: str,
     ) -> object | None:

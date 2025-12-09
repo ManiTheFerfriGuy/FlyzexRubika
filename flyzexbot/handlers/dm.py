@@ -4,15 +4,14 @@ import logging
 from html import escape
 import json
 from typing import Any, Dict, List, Optional
-from telegram import InlineKeyboardMarkup, Update
-from telegram.constants import ParseMode
-from telegram.ext import (
+from ..rubika import (
     CallbackQueryHandler,
     CommandHandler,
-    ContextTypes,
     MessageHandler,
+    Update,
     filters,
 )
+from ..rubika.models import ApplicationContext
 
 from ..application_form import (
     ApplicationQuestionDefinition,
@@ -99,7 +98,7 @@ class DMHandlers:
             CommandHandler("withdraw", self.withdraw),
         ]
 
-    async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def start(self, update: Update, context: ApplicationContext) -> None:
         chat = update.effective_chat
         user = update.effective_user
         if chat is None:
@@ -116,13 +115,12 @@ class DMHandlers:
                     self._get_webapp_url(context),
                     is_admin=is_admin,
                 ),
-                parse_mode=ParseMode.HTML,
             )
         except Exception as exc:
             LOGGER.error("Failed to send welcome message: %s", exc)
 
     async def handle_apply_callback(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         query = update.callback_query
         if not query:
@@ -175,7 +173,7 @@ class DMHandlers:
         return
 
     async def show_admin_panel(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         query = update.callback_query
         if not query:
@@ -198,12 +196,11 @@ class DMHandlers:
                 texts,
                 self._get_webapp_url(context),
             ),
-            parse_mode=ParseMode.HTML,
         )
         await self.analytics.record("dm.admin_panel_opened")
 
     async def handle_admin_panel_action(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         query = update.callback_query
         if not query:
@@ -243,7 +240,7 @@ class DMHandlers:
                     self.storage.get_applicants_by_status("approved"),
                     texts,
                 )
-                await chat.send_message(members_text, parse_mode=ParseMode.HTML)
+                await chat.send_message(members_text)
             await self.analytics.record("dm.admin_panel_view_members")
             return
 
@@ -262,7 +259,6 @@ class DMHandlers:
                 await query.edit_message_text(
                     text=management_text,
                     reply_markup=admin_management_keyboard(texts),
-                    parse_mode=ParseMode.HTML,
                 )
                 await self.analytics.record("dm.admin_panel_manage_admins_opened")
                 return
@@ -287,7 +283,7 @@ class DMHandlers:
                 await query.answer()
                 if chat is not None:
                     admins_text = self._render_admins_list(texts)
-                    await chat.send_message(admins_text, parse_mode=ParseMode.HTML)
+                    await chat.send_message(admins_text)
                 return
 
         if action.startswith("manage_questions"):
@@ -342,7 +338,6 @@ class DMHandlers:
                     reply_markup=admin_questions_keyboard(
                         texts, questions=form_definitions
                     ),
-                    parse_mode=ParseMode.HTML,
                 )
                 await self.analytics.record("dm.admin_panel_manage_questions_opened")
                 return
@@ -353,7 +348,6 @@ class DMHandlers:
                         texts,
                         self._get_webapp_url(context),
                     ),
-                    parse_mode=ParseMode.HTML,
                 )
                 await self.analytics.record("dm.admin_panel_manage_questions_back")
                 return
@@ -378,7 +372,6 @@ class DMHandlers:
                 if chat is not None:
                     await chat.send_message(
                         prompt,
-                        parse_mode=ParseMode.HTML,
                     )
                 if isinstance(context.user_data, dict):
                     context.user_data["pending_question_edit"] = {
@@ -413,7 +406,6 @@ class DMHandlers:
                 if chat is not None:
                     await chat.send_message(
                         prompt,
-                        parse_mode=ParseMode.HTML,
                     )
                 if isinstance(context.user_data, dict):
                     context.user_data["pending_question_edit"] = {
@@ -434,7 +426,6 @@ class DMHandlers:
                                 f"<pre>{escape(export_text)}</pre>",
                             ]
                         ),
-                        parse_mode=ParseMode.HTML,
                     )
                 return
             if sub_action == "reset":
@@ -445,7 +436,6 @@ class DMHandlers:
                 if chat is not None:
                     await chat.send_message(
                         prompt,
-                        parse_mode=ParseMode.HTML,
                     )
                 if isinstance(context.user_data, dict):
                     context.user_data["pending_question_edit"] = {
@@ -479,7 +469,6 @@ class DMHandlers:
                 if chat is not None:
                     await chat.send_message(
                         prompt,
-                        parse_mode=ParseMode.HTML,
                     )
                 if isinstance(context.user_data, dict):
                     context.user_data["pending_question_edit"] = {
@@ -519,7 +508,6 @@ class DMHandlers:
                 if chat is not None:
                     await chat.send_message(
                         prompt,
-                        parse_mode=ParseMode.HTML,
                     )
                 if isinstance(context.user_data, dict):
                     context.user_data["pending_question_edit"] = {
@@ -540,7 +528,7 @@ class DMHandlers:
             if callable(stats_getter) and chat is not None:
                 stats = stats_getter()
                 insights_text = self._render_admin_insights(stats, texts)
-                await chat.send_message(insights_text, parse_mode=ParseMode.HTML)
+                await chat.send_message(insights_text)
             await self.analytics.record("dm.admin_panel_insights")
             return
 
@@ -553,7 +541,6 @@ class DMHandlers:
                         texts.dm_admin_panel_more_tools_text.format(
                             webapp_url=webapp_url
                         ),
-                        parse_mode=ParseMode.HTML,
                     )
                 else:
                     await chat.send_message(texts.dm_admin_panel_more_tools_no_webapp)
@@ -569,7 +556,6 @@ class DMHandlers:
                     self._get_webapp_url(context),
                     is_admin=True,
                 ),
-                parse_mode=ParseMode.HTML,
             )
             await self.analytics.record("dm.admin_panel_back")
             return
@@ -577,7 +563,7 @@ class DMHandlers:
         await query.answer()
 
     async def receive_application(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         pending_note = (
             context.user_data.get("pending_review_note")
@@ -677,21 +663,18 @@ class DMHandlers:
         await update.message.reply_text(texts.dm_application_received)
         await self.analytics.record("dm.application_submitted")
         review_chat_id = context.bot_data.get("review_chat_id")
-        if review_chat_id and context.application:
-            context.application.create_task(
-                context.bot.send_message(
-                    chat_id=review_chat_id,
-                    text=self._render_application_text(user.id),
-                    parse_mode=ParseMode.HTML,
-                    reply_markup=application_review_keyboard(
-                        user.id, get_default_text_pack()
-                    ),
-                )
+        if review_chat_id:
+            await context.bot.send_message(
+                chat_id=review_chat_id,
+                text=self._render_application_text(user.id),
+                reply_markup=application_review_keyboard(
+                    user.id, get_default_text_pack()
+                ),
             )
         context.user_data.pop("is_filling_application", None)
         return
 
-    async def cancel(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def cancel(self, update: Update, context: ApplicationContext) -> None:
         context.user_data.pop("is_filling_application", None)
         context.user_data.pop("pending_admin_action", None)
         context.user_data.pop("application_flow", None)
@@ -703,7 +686,7 @@ class DMHandlers:
         await self.analytics.record("dm.cancelled")
 
     async def list_applications(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         user = update.effective_user
         chat = update.effective_chat
@@ -716,7 +699,7 @@ class DMHandlers:
         await self._send_pending_applications(chat, texts)
 
     async def handle_application_action(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         query = update.callback_query
         if not query:
@@ -734,7 +717,7 @@ class DMHandlers:
 
         data = query.data
         if data == "application:skip":
-            await query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup([]))
+            await query.edit_message_text(query.message.text if query.message else "")
             await self.analytics.record("dm.admin_skip_application")
             return
 
@@ -776,11 +759,10 @@ class DMHandlers:
 
         await message.edit_text(
             text=f"{application_text}\n\n{prompt_text}\n{skip_hint}",
-            parse_mode=ParseMode.HTML,
         )
 
     async def _process_admin_note_response(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         message = update.message
         user = update.effective_user
@@ -840,7 +822,6 @@ class DMHandlers:
                     chat_id=chat_id,
                     message_id=message_id,
                     text=final_text,
-                    parse_mode=ParseMode.HTML,
                 )
             except Exception as exc:  # pragma: no cover - network failures are logged
                 LOGGER.error("Failed to edit admin message for %s: %s", target_id, exc)
@@ -857,7 +838,7 @@ class DMHandlers:
     async def _process_question_edit_response(
         self,
         update: Update,
-        context: ContextTypes.DEFAULT_TYPE,
+        context: ApplicationContext,
     ) -> None:
         message = update.message
         user = update.effective_user
@@ -1064,7 +1045,7 @@ class DMHandlers:
         await self.analytics.record("dm.admin_panel_manage_questions_saved")
 
     async def _process_admin_promote_response(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         message = update.message
         user = update.effective_user
@@ -1096,7 +1077,7 @@ class DMHandlers:
         await self.analytics.record("dm.admin_panel_promote_completed")
 
     async def _process_admin_demote_response(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         message = update.message
         user = update.effective_user
@@ -1128,7 +1109,7 @@ class DMHandlers:
         await self.analytics.record("dm.admin_panel_demote_completed")
 
     async def _notify_user(
-        self, context: ContextTypes.DEFAULT_TYPE, user_id: int, text: str
+        self, context: ApplicationContext, user_id: int, text: str
     ) -> None:
         try:
             await context.bot.send_message(chat_id=user_id, text=text)
@@ -1136,7 +1117,7 @@ class DMHandlers:
             LOGGER.error("Failed to notify user %s: %s", user_id, exc)
 
     async def list_admins(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         chat = update.effective_chat
         if chat is None:
@@ -1147,10 +1128,10 @@ class DMHandlers:
         if admins_text == texts.dm_admin_manage_list_empty:
             await chat.send_message(texts.dm_no_admins)
             return
-        await chat.send_message(admins_text, parse_mode=ParseMode.HTML)
+        await chat.send_message(admins_text)
 
     async def promote_admin(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         if not await self._check_owner(update):
             return
@@ -1174,7 +1155,7 @@ class DMHandlers:
             await chat.send_message(texts.dm_already_admin.format(user_id=user_id))
 
     async def demote_admin(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         if not await self._check_owner(update):
             return
@@ -1208,7 +1189,7 @@ class DMHandlers:
             return False
         return True
 
-    async def status(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def status(self, update: Update, context: ApplicationContext) -> None:
         user = update.effective_user
         chat = update.effective_chat
         if user is None or chat is None:
@@ -1217,11 +1198,11 @@ class DMHandlers:
         text = self._render_status_text(
             self.storage.get_application_status(user.id), texts
         )
-        await chat.send_message(text, parse_mode=ParseMode.HTML)
+        await chat.send_message(text)
         await self.analytics.record("dm.status_requested")
 
     async def show_status_callback(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         query = update.callback_query
         if not query:
@@ -1237,11 +1218,11 @@ class DMHandlers:
         text = self._render_status_text(
             self.storage.get_application_status(user.id), texts
         )
-        await message.chat.send_message(text, parse_mode=ParseMode.HTML)
+        await message.chat.send_message(text)
         await self.analytics.record("dm.status_requested")
 
     async def withdraw(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         user = update.effective_user
         chat = update.effective_chat
@@ -1259,7 +1240,7 @@ class DMHandlers:
             await self.analytics.record("dm.withdraw_missing")
 
     async def handle_withdraw_callback(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         query = update.callback_query
         if not query:
@@ -1283,7 +1264,7 @@ class DMHandlers:
             await self.analytics.record("dm.withdraw_missing")
 
     async def show_language_menu(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         query = update.callback_query
         if not query:
@@ -1310,7 +1291,7 @@ class DMHandlers:
         await self.analytics.record("dm.language_menu_opened")
 
     async def close_language_menu(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         query = update.callback_query
         if not query:
@@ -1331,12 +1312,11 @@ class DMHandlers:
                 self._get_webapp_url(context),
                 is_admin=is_admin,
             ),
-            parse_mode=ParseMode.HTML,
         )
         await self.analytics.record("dm.language_menu_closed")
 
     async def set_language_callback(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+        self, update: Update, context: ApplicationContext
     ) -> None:
         query = update.callback_query
         if not query:
@@ -1365,7 +1345,6 @@ class DMHandlers:
                 self._get_webapp_url(context),
                 is_admin=is_admin,
             ),
-            parse_mode=ParseMode.HTML,
         )
 
     def _build_welcome_text(self, texts: TextPack) -> str:
@@ -1453,7 +1432,6 @@ class DMHandlers:
         for application in pending[:5]:
             await chat.send_message(
                 text=self._format_application_entry(application, texts),
-                parse_mode=ParseMode.HTML,
                 reply_markup=application_review_keyboard(application.user_id, texts),
             )
         return True
@@ -1470,7 +1448,7 @@ class DMHandlers:
             return getter(user_id)
         return None
 
-    def _get_webapp_url(self, context: ContextTypes.DEFAULT_TYPE) -> str | None:
+    def _get_webapp_url(self, context: ApplicationContext) -> str | None:
         bot_data = getattr(context, "bot_data", None)
         if isinstance(bot_data, dict):
             url = bot_data.get("webapp_url")
@@ -1548,7 +1526,7 @@ class DMHandlers:
 
     def _get_texts(
         self,
-        context: ContextTypes.DEFAULT_TYPE,
+        context: ApplicationContext,
         language_code: str | None = None,
     ) -> TextPack:
         user_data = getattr(context, "user_data", None)
@@ -1581,7 +1559,7 @@ class DMHandlers:
 
     def _get_active_language_code(
         self,
-        context: ContextTypes.DEFAULT_TYPE,
+        context: ApplicationContext,
         language_code: str | None = None,
     ) -> str | None:
         stored: str | None = None
@@ -1672,7 +1650,7 @@ class DMHandlers:
     async def _handle_application_flow_step(
         self,
         update: Update,
-        context: ContextTypes.DEFAULT_TYPE,
+        context: ApplicationContext,
         texts: TextPack,
         answer: str,
         flow_state: dict,
@@ -1782,21 +1760,18 @@ class DMHandlers:
             await message.reply_text(texts.dm_application_duplicate)
             return True
 
-        await message.reply_text(summary_text, parse_mode=ParseMode.HTML)
+        await message.reply_text(summary_text)
         await message.reply_text(texts.dm_application_received)
         await self.analytics.record("dm.application_submitted")
 
         review_chat_id = context.bot_data.get("review_chat_id")
-        if review_chat_id and context.application:
-            context.application.create_task(
-                context.bot.send_message(
-                    chat_id=review_chat_id,
-                    text=self._render_application_text(user.id),
-                    parse_mode=ParseMode.HTML,
-                    reply_markup=application_review_keyboard(
-                        user.id, get_default_text_pack()
-                    ),
-                )
+        if review_chat_id:
+            await context.bot.send_message(
+                chat_id=review_chat_id,
+                text=self._render_application_text(user.id),
+                reply_markup=application_review_keyboard(
+                    user.id, get_default_text_pack()
+                ),
             )
         return True
 

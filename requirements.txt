@@ -1,4 +1,3 @@
-python-telegram-bot[rate-limiter,callback-data]==20.7
 pyyaml>=6.0
 uvloop>=0.17; sys_platform != 'win32'
 aiofiles>=23.1

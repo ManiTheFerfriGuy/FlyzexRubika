@@ -40,7 +40,9 @@ class DummyChat:
     async def send_message(
         self, text: str, **kwargs: str
     ) -> None:  # noqa: ANN003 - kwargs not used directly
-        self.messages.append({"text": text, **kwargs})
+        payload = {"text": text, **kwargs}
+        payload.setdefault("parse_mode", "HTML")
+        self.messages.append(payload)
 
 
 class DummyCallbackMessage:
